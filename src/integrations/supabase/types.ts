@@ -14,7 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admin_users: {
+        Row: {
+          created_at: string | null
+          id: string
+          password_hash: string
+          username: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          password_hash: string
+          username: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          password_hash?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      donations: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string | null
+          donor_email: string | null
+          donor_name: string | null
+          id: string
+          status: string | null
+          stripe_session_id: string | null
+          tag_note: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string | null
+          donor_email?: string | null
+          donor_name?: string | null
+          id?: string
+          status?: string | null
+          stripe_session_id?: string | null
+          tag_note?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string | null
+          donor_email?: string | null
+          donor_name?: string | null
+          id?: string
+          status?: string | null
+          stripe_session_id?: string | null
+          tag_note?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
