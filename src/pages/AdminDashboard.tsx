@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, RefreshCw, DollarSign, Users, Calendar } from "lucide-react";
+import { RefreshCw, DollarSign, Users, Calendar } from "lucide-react";
+import { AdminLayout } from "@/components/AdminLayout";
 
 interface Donation {
   id: string;
@@ -22,19 +22,11 @@ const AdminDashboard = () => {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [totalAmount, setTotalAmount] = useState(0);
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if admin is authenticated
-    const isAuthenticated = localStorage.getItem("isAdminAuthenticated");
-    if (!isAuthenticated) {
-      navigate("/admin");
-      return;
-    }
-
     fetchDonations();
-  }, [navigate]);
+  }, []);
 
   const fetchDonations = async () => {
     setIsLoading(true);
@@ -71,15 +63,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("isAdminAuthenticated");
-    navigate("/admin");
-    toast({
-      title: "Logged Out",
-      description: "You have been logged out successfully",
-    });
-  };
-
   const formatCurrency = (amount: number, currency: string = 'usd') => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -107,15 +90,15 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-accent/5 to-primary/5 p-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-primary">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Manage donations and monitor activity</p>
-          </div>
-          <div className="flex gap-2">
+    <AdminLayout>
+      <div className="p-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-primary">Dashboard</h1>
+              <p className="text-muted-foreground">Manage donations and monitor activity</p>
+            </div>
             <Button
               onClick={fetchDonations}
               variant="outline"
@@ -125,120 +108,112 @@ const AdminDashboard = () => {
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>
-            <Button
-              onClick={handleLogout}
-              variant="destructive"
-              size="sm"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
           </div>
-        </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Donations</p>
-                  <p className="text-2xl font-bold text-primary">{donations.length}</p>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Total Donations</p>
+                    <p className="text-2xl font-bold text-primary">{donations.length}</p>
+                  </div>
+                  <Users className="w-8 h-8 text-primary/60" />
                 </div>
-                <Users className="w-8 h-8 text-primary/60" />
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Amount</p>
-                  <p className="text-2xl font-bold text-primary">{formatCurrency(totalAmount)}</p>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Total Amount</p>
+                    <p className="text-2xl font-bold text-primary">{formatCurrency(totalAmount)}</p>
+                  </div>
+                  <DollarSign className="w-8 h-8 text-primary/60" />
                 </div>
-                <DollarSign className="w-8 h-8 text-primary/60" />
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Successful Donations</p>
-                  <p className="text-2xl font-bold text-primary">
-                    {donations.filter(d => d.status === 'paid').length}
-                  </p>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Successful Donations</p>
+                    <p className="text-2xl font-bold text-primary">
+                      {donations.filter(d => d.status === 'paid').length}
+                    </p>
+                  </div>
+                  <Calendar className="w-8 h-8 text-primary/60" />
                 </div>
-                <Calendar className="w-8 h-8 text-primary/60" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </div>
 
-        {/* Donations Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <DollarSign className="w-5 h-5" />
-              All Donations
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="text-center py-8">
-                <RefreshCw className="w-8 h-8 animate-spin mx-auto text-primary mb-2" />
-                <p className="text-muted-foreground">Loading donations...</p>
-              </div>
-            ) : donations.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">No donations found</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-2 font-medium">Donor</th>
-                      <th className="text-left p-2 font-medium">Email</th>
-                      <th className="text-left p-2 font-medium">Amount</th>
-                      <th className="text-left p-2 font-medium">Note/Tag</th>
-                      <th className="text-left p-2 font-medium">Status</th>
-                      <th className="text-left p-2 font-medium">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {donations.map((donation) => (
-                      <tr key={donation.id} className="border-b hover:bg-muted/50">
-                        <td className="p-2">
-                          {donation.donor_name || "Anonymous"}
-                        </td>
-                        <td className="p-2 text-sm text-muted-foreground">
-                          {donation.donor_email || "N/A"}
-                        </td>
-                        <td className="p-2 font-medium">
-                          {formatCurrency(Number(donation.amount), donation.currency)}
-                        </td>
-                        <td className="p-2 text-sm">
-                          {donation.tag_note || "No note"}
-                        </td>
-                        <td className="p-2">
-                          {getStatusBadge(donation.status)}
-                        </td>
-                        <td className="p-2 text-sm text-muted-foreground">
-                          {formatDate(donation.created_at)}
-                        </td>
+          {/* Donations Table */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign className="w-5 h-5" />
+                All Donations
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="text-center py-8">
+                  <RefreshCw className="w-8 h-8 animate-spin mx-auto text-primary mb-2" />
+                  <p className="text-muted-foreground">Loading donations...</p>
+                </div>
+              ) : donations.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">No donations found</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left p-2 font-medium">Donor</th>
+                        <th className="text-left p-2 font-medium">Email</th>
+                        <th className="text-left p-2 font-medium">Amount</th>
+                        <th className="text-left p-2 font-medium">Note/Tag</th>
+                        <th className="text-left p-2 font-medium">Status</th>
+                        <th className="text-left p-2 font-medium">Date</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                    </thead>
+                    <tbody>
+                      {donations.map((donation) => (
+                        <tr key={donation.id} className="border-b hover:bg-muted/50">
+                          <td className="p-2">
+                            {donation.donor_name || "Anonymous"}
+                          </td>
+                          <td className="p-2 text-sm text-muted-foreground">
+                            {donation.donor_email || "N/A"}
+                          </td>
+                          <td className="p-2 font-medium">
+                            {formatCurrency(Number(donation.amount), donation.currency)}
+                          </td>
+                          <td className="p-2 text-sm">
+                            {donation.tag_note || "No note"}
+                          </td>
+                          <td className="p-2">
+                            {getStatusBadge(donation.status)}
+                          </td>
+                          <td className="p-2 text-sm text-muted-foreground">
+                            {formatDate(donation.created_at)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 
