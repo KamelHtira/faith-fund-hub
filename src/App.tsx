@@ -12,6 +12,8 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 
 const queryClient = new QueryClient();
 
+console.log("App loading with components:", { Index, NotFound, AdminLogin, AdminDashboard, Donate, PaymentSuccess });
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
